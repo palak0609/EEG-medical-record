@@ -7,10 +7,24 @@ import pandas as pd
 import numpy as np
 from docx import Document
 import os
+from docx.shared import Pt, RGBColor
 
 def save_to_docx(text: str, file_name: str):
     doc = Document()
-    doc.add_heading("Subsection & Band-wise Metrics Analysis", level=1)
+
+    # Add custom heading 'EEG // ' at the start
+    eeg_heading = doc.add_paragraph()
+    eeg_run = eeg_heading.add_run("EEG // ")
+    eeg_run.font.size = Pt(18)
+    eeg_run.bold = True
+    eeg_run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+
+    # Main heading
+    heading = doc.add_paragraph()
+    heading_run = heading.add_run("Band-wise Metrics Analysis")
+    heading_run.bold = True
+    heading_run.font.size = Pt(16)
+    heading_run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
 
     for block in text.strip().split("\n Subsection: "):
         if block.strip():
@@ -23,7 +37,18 @@ def save_to_docx(text: str, file_name: str):
             para = doc.add_paragraph()
             run = para.add_run(f"Subsection: {subsection_title}")
             run.bold = True
-            doc.add_paragraph(content.strip(), style='Normal')
+            run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+
+            for line in content.strip().split("\n"):
+                if line.strip().startswith("Band: ") or line.strip().startswith("Set 1 (") or line.strip().startswith("Set 2 ("):
+                    p = doc.add_paragraph()
+                    r = p.add_run(line.strip())
+                    r.bold = True
+                    r.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+                else:
+                    p = doc.add_paragraph()
+                    r = p.add_run(line.strip())
+                    r.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
 
     doc.save(file_name)
 
