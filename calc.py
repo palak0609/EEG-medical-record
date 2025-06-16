@@ -19,6 +19,18 @@ def save_to_docx(text: str, file_name: str):
     # Default color (do not set run.font.color)
     doc.add_heading("Band-wise Metrics Analysis: ", level=1)
 
+    # Metrics to bullet
+    bullet_metrics = [
+        "Absolute Sum:",
+        "Average Absolute Value:",
+        "Delta:",
+        "Percent Change:",
+        "Total Rows:",
+        '"Normalize = Yes":',
+        '"Normalize = No":',
+        '"Normalize = NS":',
+    ]
+
     for block in text.strip().split("\n Subsection: "):
         if block.strip():
             if not block.startswith("Subsection:"):
@@ -30,7 +42,14 @@ def save_to_docx(text: str, file_name: str):
             para = doc.add_paragraph()
             run = para.add_run(f"Subsection: {subsection_title}")
             run.bold = True
-            doc.add_paragraph(content.strip(), style='Normal')
+
+            # Add each line, prepending a bullet if it's a metric
+            for line in content.strip().split("\n"):
+                line_strip = line.strip()
+                if any(line_strip.lstrip().startswith(metric) for metric in bullet_metrics):
+                    doc.add_paragraph(f"• {line_strip}", style='Normal')
+                elif line_strip:
+                    doc.add_paragraph(line_strip, style='Normal')
 
     doc.save(file_name)
 
